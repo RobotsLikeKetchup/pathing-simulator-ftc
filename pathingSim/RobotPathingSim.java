@@ -74,13 +74,16 @@ public class RobotPathingSim {
 
     private static void pathSimulator() {
         Ticker timeCount = new Ticker();  
-        MotionProfile1D motionProfile = new MotionProfile1D(0.3, 0.02, timeCount);     
+        MotionProfile1D motionProfile = new MotionProfile1D(0.3, 0.015, timeCount);     
         Timer timer;
 
+        //this loop simulates the actual loop the robot goes through during its stuff
         ActionListener loop = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 timeCount.up();
+
+                //gets goal point, then get the direction the robot goes in and then finally make it go at the speed it should go at.
                 double[] goalPoint = pathing.findPointOnPath(robotSim.getRobotX(), robotSim.getRobotY(), robotSim.getRobotA());
                 int[] direction = MovementFunctions.createMovementVector(new double[] {robotSim.getRobotX(), robotSim.getRobotY(), Math.toRadians(robotSim.getRobotA())}, goalPoint);
                 System.out.println("moving in direction: [" + direction[0] + ", " + direction[1] + ", " + direction[2] + "]");
@@ -90,9 +93,11 @@ public class RobotPathingSim {
                 label.setText("Robot Coordinates: (" + robotSim.getRobotX() + ", " + robotSim.getRobotY() + ") Robot Angle: " + robotSim.getRobotA());
 
                 
-                out.append("\n Last found index: " + pathing.getLastFoundIndex());
-                if(pathing.getDistanceFromEnd() <= 25) {
+                System.out.println("\n robot moving at speed " + motionProfile.getTargetSpeed());
+
+                if(pathing.getDistanceFromEnd() <= 50) {
                     motionProfile.startSlowDown();
+                    out.append("\n slowing down"); 
                 }
         
                 if (motionProfile.currentPhase == MotionProfile1D.Phase.STOPPED) {
@@ -193,10 +198,18 @@ class robotSimPanel extends JPanel {
     }
                 
     public void moveRobotInDirection(int x, int y, int theta, double speed) {
-        int robotNewX = robotX + (int) Math.round(x*speed);
-        int robotNewY = robotY + (int) Math.round(y*speed);
+        int xDif = (int) Math.round(x*speed);
+        int yDif = (int) Math.round(y*speed);
+
+        int robotNewX = robotX + xDif;
+        int robotNewY = robotY + yDif;
         double robotNewA = Math.toRadians(robotA) + Math.round(theta*speed);
-        
+
+        System.out.println("x difference = " + xDif + ", y difference = " + yDif);
+
+        if(Math.abs(xDif) > 5 || Math.abs(yDif) > 5) {
+            System.out.println("ABNORMALLY LARGE Difference!");
+        }        
         moveRobotToLocation(robotNewX, robotNewY, robotNewA, true);
     }
 

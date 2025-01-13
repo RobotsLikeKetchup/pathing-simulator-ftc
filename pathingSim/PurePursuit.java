@@ -111,44 +111,50 @@ public class PurePursuit {
 
         double[] goalPoint = new double[2];
 
-        //start by iterating through the path
-        for (int i = lastFoundIndex; i < (path.length - 1); i++) {
-            //find two points to create a line segment
-            double[] point1 = path[i];
-            double[] point2 = path[i+1];
+        if(lastFoundIndex == path.length-1) {
+            goalPoint = path[path.length-1];
+        } else {
 
-            double[][] solutions = intersection(robotPosition,point1,point2,lookAhead);
+            //start by iterating through the path
+            for (int i = lastFoundIndex; i < (path.length - 1); i++) {
+                //find two points to create a line segment
+                double[] point1 = path[i];
+                double[] point2 = path[i+1];
 
-            if(solutions.length > 0) { // solution found!
-                intersectionFound = true;
+                double[][] solutions = intersection(robotPosition,point1,point2,lookAhead);
 
-                if(solutions.length == 2){
-                    //System.out.println("2 intersections found...");
-                    if(twoPointDistance(solutions[0], path[i+1]) < twoPointDistance(solutions[1], path[i+1])){
-                        goalPoint = solutions[0];
+                if(solutions.length > 0) { // solution found!
+                    intersectionFound = true;
+
+                    if(solutions.length == 2){
+                        //System.out.println("2 intersections found...");
+                        if(twoPointDistance(solutions[0], path[i+1]) < twoPointDistance(solutions[1], path[i+1])){
+                            goalPoint = solutions[0];
+                        } else {
+                            goalPoint = solutions[1];
+                        }
                     } else {
-                        goalPoint = solutions[1];
+                        //System.out.println("1 intersection found...");
+                        goalPoint = solutions[0];
                     }
-                } else {
-                    //System.out.println("1 intersection found...");
-                    goalPoint = solutions[0];
-                }
 
-                if(twoPointDistance(goalPoint, path[i+1]) <= twoPointDistance(robotPosition, path[i+1])){
-                    lastFoundIndex = i;
-                    break;
-                } else {
-                    lastFoundIndex = i+1;
-                }
+                    if(twoPointDistance(goalPoint, path[i+1]) <= twoPointDistance(robotPosition, path[i+1])){
+                        lastFoundIndex = i;
+                        break;
+                    } else {
+                        lastFoundIndex = i+1;
+                    }
 
-            } else { //no solution found!
-                //System.out.println("no intersection found...");
-                intersectionFound = false;
-                goalPoint[0] = path[lastFoundIndex][0];
-                goalPoint[1] = path[lastFoundIndex][1];
+                } else { //no solution found!
+                    //System.out.println("no intersection found...");
+                    intersectionFound = false;
+                    goalPoint[0] = path[lastFoundIndex][0];
+                    goalPoint[1] = path[lastFoundIndex][1];
+                }
             }
+            //System.out.println("goal point: (" + goalPoint[0] + ", " + goalPoint[1] + ")");
+            
         }
-        //System.out.println("goal point: (" + goalPoint[0] + ", " + goalPoint[1] + ")");
         return goalPoint;
     }
 

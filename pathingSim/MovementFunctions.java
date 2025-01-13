@@ -13,7 +13,11 @@ public class MovementFunctions {
 
         double relativeAngle = angleWrap(absoluteAngle - robotPose[2]);
 
-        double divisor = Math.max(relativeX, relativeY);
+        double divisor = Math.max(Math.abs(relativeX), Math.abs(relativeY));
+
+        if(Math.abs((int) Math.round(10 * relativeX/divisor)) > 50) {
+            System.out.println("big diff");
+        }
 
 
         return new int[] {
@@ -23,6 +27,8 @@ public class MovementFunctions {
         };
     }
 
+
+    //wraps the angle so it stays within -pi and pi
     public static double angleWrap(double angle) {
         while(angle < -Math.PI) {
             angle += 2 * Math.PI;

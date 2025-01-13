@@ -1,6 +1,9 @@
 package pathingSim;
 
 //this motion profile ONLY generates for 1d speed, NOT velocity or position
+
+//by setting a max speed and accelleration, you can control the robot's speed and prevent it from having jerky movement
+//and if it has jerky movement it can slip around and the robot moves less accurately
 public class MotionProfile1D {
     public enum Phase {
         STOPPED,
