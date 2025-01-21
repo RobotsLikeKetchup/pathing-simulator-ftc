@@ -35,7 +35,7 @@ public class RobotPathingSim {
         frame.add(topSection, BorderLayout.NORTH);
 
 
-        
+        //adds the simulator 2d graphics pane
         frame.getContentPane().add(robotSim, BorderLayout.CENTER);
 
         label.setMinimumSize(new Dimension(20,40));
@@ -52,6 +52,7 @@ public class RobotPathingSim {
 
         frame.add(topSection, BorderLayout.NORTH);
 
+        //similar to the console, but just so I can see two debug variables at once...
         JScrollPane scrollPane = new JScrollPane(out);
         scrollPane.setPreferredSize(new Dimension(600, 100));
 
@@ -74,7 +75,7 @@ public class RobotPathingSim {
 
     private static void pathSimulator() {
         Ticker timeCount = new Ticker();  
-        MotionProfile1D motionProfile = new MotionProfile1D(0.3, 0.015, timeCount);     
+        MotionProfile1D motionProfile = new MotionProfile1D(3, 0.15, timeCount);     
         Timer timer;
 
         //this loop simulates the actual loop the robot goes through during its stuff
@@ -85,12 +86,13 @@ public class RobotPathingSim {
 
                 //gets goal point, then get the direction the robot goes in and then finally make it go at the speed it should go at.
                 double[] goalPoint = pathing.findPointOnPath(robotSim.getRobotX(), robotSim.getRobotY(), robotSim.getRobotA());
-                int[] direction = MovementFunctions.createMovementVector(new double[] {robotSim.getRobotX(), robotSim.getRobotY(), Math.toRadians(robotSim.getRobotA())}, goalPoint);
+                double[] direction = MovementFunctions.createMovementVector(new double[] {robotSim.getRobotX(), robotSim.getRobotY(), robotSim.getRobotA()}, goalPoint);
+                
                 System.out.println("moving in direction: [" + direction[0] + ", " + direction[1] + ", " + direction[2] + "]");
                 robotSim.moveRobotInDirection(direction[0], direction[1], direction[2], motionProfile.getTargetSpeed());
                 robotSim.setTargetPoint((int) Math.round(goalPoint[0]), (int) Math.round(goalPoint[1]));
             
-                label.setText("Robot Coordinates: (" + robotSim.getRobotX() + ", " + robotSim.getRobotY() + ") Robot Angle: " + robotSim.getRobotA());
+                label.setText("Robot Coordinates: (" + robotSim.getRobotX() + ", " + robotSim.getRobotY() + ") Robot Angle: " + Math.toDegrees(robotSim.getRobotA()));
 
                 
                 System.out.println("\n robot moving at speed " + motionProfile.getTargetSpeed());
@@ -105,7 +107,8 @@ public class RobotPathingSim {
                 }
             }
         };
-           
+          
+        //this is the timer for a simulation of real-life 'time'- time in this situation is discrete "counts", and the count goes up 10 times a second
         timer = new Timer(100, loop);
         timer.setRepeats(true);
         timer.setInitialDelay(2);
@@ -189,27 +192,27 @@ class robotSimPanel extends JPanel {
     }
                 
     private void moveRobotToLocation(int x, int y, double theta, boolean drawPath) {
-        if ((robotX!=x) || (robotY!=y)) {
+        if ((robotX!=x) || (robotY!=y) || (robotA!=theta)) {
             robotX=x;
             robotY=y;
-            robotA = theta;
+            robotA = MovementFunctions.angleWrap(theta);
             repaint();
         } 
+        System.out.println("robot angle: " + Math.toDegrees(robotA));
     }
                 
-    public void moveRobotInDirection(int x, int y, int theta, double speed) {
-        int xDif = (int) Math.round(x*speed);
-        int yDif = (int) Math.round(y*speed);
+    public void moveRobotInDirection(double x, double y, double theta, double speed) {
+        //rotating the point
+        double rotatedX = (x*Math.cos(robotA)) - (y*Math.sin(robotA));
+        double rotatedY = (x*Math.sin(robotA)) - (y*Math.cos(robotA));
+
+        int xDif = (int) Math.round(rotatedX*speed);
+        int yDif = (int) Math.round(rotatedY*speed);
 
         int robotNewX = robotX + xDif;
         int robotNewY = robotY + yDif;
-        double robotNewA = Math.toRadians(robotA) + Math.round(theta*speed);
-
-        System.out.println("x difference = " + xDif + ", y difference = " + yDif);
-
-        if(Math.abs(xDif) > 5 || Math.abs(yDif) > 5) {
-            System.out.println("ABNORMALLY LARGE Difference!");
-        }        
+        double robotNewA = robotA + theta;
+      
         moveRobotToLocation(robotNewX, robotNewY, robotNewA, true);
     }
 
