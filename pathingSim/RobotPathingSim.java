@@ -13,11 +13,11 @@ public class RobotPathingSim {
     //for now, negative numbers don't work because this is directly scaled to the java window coordinate frame
     //TODO: fix later
     public static final double[][] PATH = {
-        {60,60},
-        {290, 120},
-        {220,165},
-        {240, 210},
-        {150, 195}
+        {20,20},
+        {80, 70},
+        {120, 90},
+        {100, 110},
+        {20, 130}
     };
 
     static PurePursuit pathing = new PurePursuit(PATH);
@@ -97,10 +97,12 @@ public class RobotPathingSim {
                 
                 System.out.println("\n robot moving at speed " + motionProfile.getTargetSpeed());
 
-                if(pathing.getDistanceFromEnd() <= 50) {
+                if(pathing.getDistanceFromEnd() <= 30) {
                     motionProfile.startSlowDown();
                     out.append("\n slowing down"); 
                 }
+
+                out.append(Integer.toString(pathing.getLastFoundIndex()));
         
                 if (motionProfile.currentPhase == MotionProfile1D.Phase.STOPPED) {
                     ((Timer) e.getSource()).stop();
@@ -175,7 +177,7 @@ class robotSimPanel extends JPanel {
         g2D.draw(new Line2D.Float(c,a));
 
         g2D.setColor(new Color(73, 196, 51));
-        g2D.drawOval(robotX-(30), robotY-(30), 60,60);
+        g2D.drawOval(robotX-(25), robotY-(25), 50,50);
 
         
         g2D.setStroke(pathStroke);
@@ -212,6 +214,10 @@ class robotSimPanel extends JPanel {
         int robotNewX = robotX + xDif;
         int robotNewY = robotY + yDif;
         double robotNewA = robotA + theta;
+
+        if(Math.abs(theta) > Math.toRadians(150)) {
+            System.out.println("180 deg turn!");
+        }
       
         moveRobotToLocation(robotNewX, robotNewY, robotNewA, true);
     }

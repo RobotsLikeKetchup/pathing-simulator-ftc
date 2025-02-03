@@ -19,7 +19,7 @@ public class MovementFunctions {
 
 
         return new double[] {
-                Math.sin(relativeAngle),
+                -Math.sin(relativeAngle), // WHY IS THIS NEGATIVE IDK WHY??
                 Math.cos(relativeAngle),
                 relativeAngle
         };
@@ -35,5 +35,9 @@ public class MovementFunctions {
             angle -= 2 * Math.PI;
         }
         return angle;
+    }
+
+    public static double proportionalAngleCorrection(double optimalAngle, double robotAngle) {
+        return angleWrap(optimalAngle - robotAngle);
     }
 } 

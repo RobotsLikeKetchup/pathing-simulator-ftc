@@ -12,7 +12,7 @@ public class PurePursuit {
     double[] robotPosition;
 
     //distance to "look ahead" for the pure pursuit algorithm
-    public double lookAhead = 30;
+    public double lookAhead = 25;
 
     public PurePursuit(double[][] pathPoints) {
         path = pathPoints;
@@ -140,21 +140,30 @@ public class PurePursuit {
 
                     if(twoPointDistance(goalPoint, path[i+1]) <= twoPointDistance(robotPosition, path[i+1])){
                         lastFoundIndex = i;
+                        intersectionFound=true;
                         break;
                     } else {
                         lastFoundIndex = i+1;
+                        intersectionFound = false;
                     }
 
                 } else { //no solution found!
-                    //System.out.println("no intersection found...");
+                    System.out.println("no intersection found...");
                     intersectionFound = false;
+                }
+            }
+            if(intersectionFound == false) {
+                if(lastFoundIndex + 2 == path.length) { //if the robot is on its final line segment, go straight to the finish!
+                    goalPoint[0] = path[lastFoundIndex+1][0];
+                    goalPoint[1] = path[lastFoundIndex+1][1];
+                } else {
                     goalPoint[0] = path[lastFoundIndex][0];
                     goalPoint[1] = path[lastFoundIndex][1];
                 }
             }
-            //System.out.println("goal point: (" + goalPoint[0] + ", " + goalPoint[1] + ")");
-            
         }
+        //System.out.println("goal point: (" + goalPoint[0] + ", " + goalPoint[1] + ")");
+
         return goalPoint;
     }
 
